@@ -8,7 +8,7 @@ def analyze_sentiment(text):
     if not text.strip():
         return "Please enter some text to analyze."
     result = classifier(text)
-    return result[0]
+    return {result[0]["label"]: result[0]["score"]}
 
 gradio_app = gr.Interface(
     analyze_sentiment,
