@@ -1,5 +1,4 @@
-transformers
-torch
-gradio
-datasets
-scikit-learn
+# Dependências extras SOMENTE para o desafio bônus opcional (train_model.py).
+# Instalar com: pip install -r requirements.txt -r requirements_train.txt
+-r requirements.txt
+scikit-learn==1.9.0

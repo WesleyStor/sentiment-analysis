@@ -1,19 +1,29 @@
 # Sentiment Analyzer
 
-A interactive sentiment analysis demo for educational purposes. Build your own ML app and deploy to Hugging Face Spaces!
+A interactive sentiment analysis demo for educational purposes. Build your own ML app, track experiments with MLflow, and deploy an inference API.
 
 ## Overview
 
-This project demonstrates building a sentiment analysis application using Hugging Face Transformers and Gradio. Students will learn the complete MLOps pipeline: model selection, interface building, deployment, and customization.
+This project demonstrates building a sentiment analysis application using Hugging Face Transformers and Gradio. Students will learn the complete MLOps pipeline: model selection, interface building, experiment tracking, deployment, and customization.
+
+## Pré-requisitos
+
+- **Colab**: usado apenas na demonstração do professor (Bloco 2). Esta atividade **não** depende do Colab.
+- **Python instalado localmente** (3.10+) na sua máquina — os Exercícios A e B desta atividade rodam num terminal local, não dentro do Colab.
 
 ## Initial Code Structure
 
 ```
 sentiment-analysis/
-├── app.py              # Starting code (to be completed by students)
-├── requirements.txt    # Python dependencies
-├── train_model.py      # Optional: Train your own model (challenge)
-└── README.md          # Instructions and challenges
+├── app.py                    # Starting code (to be completed by students)
+├── model.py                  # Model loading, shared by app.py, mlflow_tracking.py and api/main.py
+├── mlflow_tracking.py        # Exercício A (obrigatório): rastreamento de experimentos com MLflow
+├── api/
+│   └── main.py                # Exercício B (obrigatório): endpoint de inferência com FastAPI
+├── requirements.txt          # Python dependencies (cobre app, MLflow e API)
+├── requirements_train.txt    # Dependência extra (scikit-learn), só para o bônus
+├── train_model.py            # Optional: Train your own model (bônus)
+└── README.md                 # Instructions and challenges
 ```
 
 ## Getting Started
@@ -25,21 +35,72 @@ pip install -r requirements.txt
 python app.py
 ```
 
+`requirements.txt` já cobre tudo que é necessário na aula (app, MLflow, API). Só instale `requirements_train.txt` também se for tentar o desafio bônus de fine-tuning:
+
+```bash
+pip install -r requirements.txt -r requirements_train.txt
+```
+
 Test the interface and understand how it works.
 
-### Step 2: Deploy to Hugging Face Spaces
+### Step 2 (opcional/complementar): Deploy to Hugging Face Spaces
 
 Follow the same steps as the Hot Dog Classifier demo:
 
 1. Create Space at [hf.co/new-space](https://hf.co/new-space)
 2. Choose **Gradio** SDK
-3. Push files via git
+3. Push files via git (`app.py`, `model.py`, `requirements.txt`)
+
+> ⚠️ Se for reaproveitar este README como README do Space, adicione o bloco de front-matter YAML (título, emoji, `sdk: gradio`, `app_file: app.py`, etc.) no topo do arquivo antes de copiar — veja o exemplo completo no README do `hotdog-classifier`. Sem ele, o Space não builda.
 
 ---
 
-## 🎯 Challenge 1: Visual Customization
+## Exercício A (obrigatório): Rastreamento de Experimentos com MLflow
 
-**Time:** 10-15 minutes
+**Tempo:** ~30 minutos
+
+Rode `mlflow_tracking.py`: ele compara dois modelos de sentiment analysis (o default e `cardiffnlp/twitter-xlm-roberta-base-sentiment`) em um pequeno conjunto de frases de teste, registrando no MLflow:
+
+- **params**: qual modelo foi usado
+- **metrics**: acurácia nas frases de teste, confiança média, latência média
+- **artifacts**: um JSON com os resultados detalhados
+
+```bash
+python mlflow_tracking.py
+```
+
+**Sua tarefa:** adicione um terceiro modelo à lista `MODELS_TO_COMPARE` (pode ser um dos sugeridos no Challenge 3 abaixo), rode novamente, e observe a tabela de comparação impressa ao final (via `mlflow.search_runs()`).
+
+**Concepts:** experiment tracking, params/metrics/artifacts, comparação de runs.
+
+---
+
+## Exercício B (obrigatório): Deploy via API
+
+**Tempo:** ~35 minutos
+
+`api/main.py` expõe o modelo via FastAPI. Roda **localmente, num terminal** (não no Colab):
+
+```bash
+uvicorn api.main:app --reload
+```
+
+Os endpoints `/health` e `/predict` já funcionam — teste-os via Swagger UI (`http://localhost:8000/docs`) ou curl:
+
+```bash
+curl -X POST http://localhost:8000/predict -H "Content-Type: application/json" \
+     -d '{"text": "I love this course!"}'
+```
+
+**Sua tarefa:** implemente o endpoint `POST /predict/batch`, que recebe uma lista de textos e retorna uma predição para cada um (reaproveite a lógica de `/predict`).
+
+**Concepts:** deploy de modelo, API REST, request/response schema (Pydantic).
+
+---
+
+## 🎯 Challenge 1: Visual Customization (aquecimento)
+
+**Time:** 10 minutes
 
 Modify the app to make it more visually appealing:
 
@@ -51,9 +112,9 @@ Modify the app to make it more visually appealing:
 
 ---
 
-## 🎯 Challenge 2: Enhanced Output
+## 🎯 Challenge 2: Enhanced Output (aquecimento)
 
-**Time:** 15-20 minutes
+**Time:** 15 minutes
 
 Improve the output display to show more details:
 
@@ -67,33 +128,32 @@ Improve the output display to show more details:
 
 ---
 
-## 🎯 Challenge 3: Multi-Language Support
+## 🎯 Challenge 3: Multi-Language Support (se sobrar tempo)
 
-**Time:** 20-25 minutes
+**Time:** 15 minutes
 
 Add support for Portuguese language:
 
-1. Research and find a Portuguese sentiment model on Hugging Face Hub
-2. Modify the pipeline to use a multi-language or Portuguese-specific model
-3. Add a language selector dropdown
-4. Handle both English and Portuguese text
+1. Modify the pipeline to use a multi-language or Portuguese-specific model
+2. Add a language selector dropdown
+3. Handle both English and Portuguese text
 
-**Suggested Models to research:**
-- `cardiffnlp/twitter-xlm-roberta-base-sentiment` (multi-language)
-- `brazilsilva/pt-sentiment-analysis` (Portuguese-specific)
+**Modelos verificados e testados (Hugging Face Hub):**
+- `cardiffnlp/twitter-xlm-roberta-base-sentiment` (multilíngue, inclui português)
+- `nlptown/bert-base-multilingual-uncased-sentiment` (multilíngue; atenção: retorna rótulos "1 star".."5 stars" em vez de POSITIVE/NEGATIVE — bom exemplo real de como modelos diferentes usam esquemas de rótulo diferentes)
 
-**Concepts:** Model selection, internationalization, research skills
+**Concepts:** Model selection, internationalization, esquemas de rótulo diferentes entre modelos
 
 ---
 
-## 🔥 Bonus Challenge (Optional)
+## 🔥 Bonus Challenge (Optional, fora do horário de aula)
 
-**Time:** 30+ minutes
+**Time:** 45+ minutes
 
 Implement your own training pipeline using the IMDB dataset:
 
 1. Load the IMDB dataset from Hugging Face `datasets`
-2. Fine-tune a pre-trained model (e.g., BERT, DistilBERT)
+2. Fine-tune a pre-trained model (e.g., BERT, DistilBERT) with `train_model.py`
 3. Save and load your custom model
 4. Replace the default pipeline with your fine-tuned model
 
@@ -103,27 +163,48 @@ Implement your own training pipeline using the IMDB dataset:
 
 ## Educational Goals
 
-By completing these challenges, students will learn:
+By completing this activity, students will learn:
 
-1. **MLOps Fundamentals**: Model deployment, versioning, CI/CD
-2. **Gradio Interface**: Building interactive ML applications
-3. **Transformers Pipeline**: Using pre-trained models
-4. **Model Selection**: Finding and evaluating models on Hugging Face Hub
-5. **Customization**: Adapting code for specific needs
+1. **MLOps Fundamentals**: Experiment tracking, model deployment, versioning
+2. **MLflow**: Logging params/metrics/artifacts, comparing runs
+3. **FastAPI**: Building and testing a REST inference endpoint
+4. **Gradio Interface**: Building interactive ML applications
+5. **Transformers Pipeline**: Using pre-trained models
+6. **Model Selection**: Finding and evaluating models on Hugging Face Hub
 
 ---
 
-## Timeline Guide
+## Timeline Guide (120 minutos)
 
-| Activity | Time | Difficulty |
-|----------|------|------------|
-| Initial setup & local testing | 15 min | Easy |
-| Challenge 1: Visual Customization | 15 min | Easy |
-| Challenge 2: Enhanced Output | 20 min | Medium |
-| Challenge 3: Multi-Language | 30 min | Medium-Hard |
-| Bonus: Train your own model | 45+ min | Hard |
-| **Total (required)** | **~2.5 hours** | |
-| **Total (with bonus)** | **~3.5 hours** | |
+| Atividade | Tempo | Obrigatório? |
+|---|---|---|
+| Setup local + teste do `app.py` | 10 min | Sim |
+| Challenge 1: Customização Visual | 10 min | Aquecimento |
+| Challenge 2: Output com confidence score | 15 min | Aquecimento |
+| **Exercício A: Rastreamento com MLflow** | 30 min | **Sim** |
+| **Exercício B: Endpoint FastAPI** | 35 min | **Sim** |
+| Challenge 3: Suporte multi-idioma | 15 min | Se sobrar tempo |
+| Revisão da rubrica / dúvidas finais | 5 min | — |
+| **Total** | **~120 min** | |
+| Bônus: fine-tuning (`train_model.py`) | 45+ min | Fora da aula, entrega posterior |
+
+---
+
+## Checklist de entrega (rubrica)
+
+**Obrigatório**
+- [ ] App Gradio (`app.py`) rodando localmente sem erros
+- [ ] `mlflow_tracking.py` executado com pelo menos 3 runs registrados, incluindo 1 modelo adicional escolhido pelo aluno
+- [ ] Print ou export da tabela de comparação (`mlflow.search_runs()`)
+- [ ] `api/main.py` rodando localmente, `/predict` testado via curl ou Swagger UI
+- [ ] Endpoint `/predict/batch` implementado
+- [ ] Organização do repositório e clareza do código
+
+**Opcional / Bônus**
+- [ ] Challenge 1 e/ou 2 (customização visual, output com confidence score)
+- [ ] Challenge 3: suporte a português com modelo verificado
+- [ ] Deploy no Hugging Face Spaces
+- [ ] Bônus: fine-tuning com `train_model.py` (entrega posterior, fora do horário de aula)
 
 ---
 
@@ -138,6 +219,9 @@ By completing these challenges, students will learn:
 ### App doesn't update
 **Solution:** Push changes to git, wait for Space rebuild (~2 min)
 
+### `ModuleNotFoundError: No module named 'sklearn'` ao rodar `train_model.py`
+**Solution:** o bônus precisa de `requirements_train.txt` também: `pip install -r requirements.txt -r requirements_train.txt`
+
 ---
 
 ## Resources
@@ -146,14 +230,15 @@ By completing these challenges, students will learn:
 - [Gradio Documentation](https://www.gradio.app/docs)
 - [Transformers Pipeline](https://huggingface.co/docs/transformers/pipeline_tutorial)
 - [Sentiment Analysis Task](https://huggingface.co/tasks/text-classification)
+- [MLflow Tracking](https://mlflow.org/docs/latest/tracking.html)
+- [FastAPI](https://fastapi.tiangolo.com/)
 
 ---
 
 ## Teacher Notes
 
-This activity is designed for a ~3 hour class:
-- **15 min**: Demo Hot Dog Classifier (teacher shows)
-- **2.5 hours**: Students complete Challenges 1-3
-- **15 min**: Share results and Q&A
+Esta atividade é a **atividade prática avaliativa** do bloco das 14:45–16:45 (120 minutos), após os alunos já terem visto no `hotdog-classifier`: ciclo de vida de ML/MLOps (Bloco 1), rastreamento de experimentos com MLflow (Bloco 2) e deploy via FastAPI/Hugging Face Spaces + monitoramento (Bloco 3).
+
+Os Exercícios A (MLflow) e B (API) são obrigatórios e reforçam diretamente o que foi demonstrado nos Blocos 2 e 3. Os Challenges 1–3 são aquecimento/extensão, não o núcleo avaliado.
 
 All models used are free and publicly available on Hugging Face Hub.

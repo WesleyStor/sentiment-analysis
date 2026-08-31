@@ -1,12 +1,13 @@
 import gradio as gr
-from transformers import pipeline
 
-pipeline = pipeline(task="sentiment-analysis")
+from model import load_classifier
+
+classifier = load_classifier()
 
 def analyze_sentiment(text):
     if not text.strip():
         return "Please enter some text to analyze."
-    result = pipeline(text)
+    result = classifier(text)
     return result[0]
 
 gradio_app = gr.Interface(

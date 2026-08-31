@@ -66,7 +66,7 @@ if __name__ == "__main__":
         weight_decay=0.01,
         logging_dir='./logs',
         logging_steps=100,
-        evaluation_strategy="epoch",
+        eval_strategy="epoch",
         save_strategy="epoch",
         load_best_model_at_end=True,
     )
