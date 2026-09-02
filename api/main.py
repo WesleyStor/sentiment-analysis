@@ -42,7 +42,4 @@ def predict(payload: TextInput):
 
 @app.post("/predict/batch")
 def predict_batch(payload: BatchInput):
-    # TODO (aluno): implemente este endpoint.
-    # Deve retornar uma lista de predicoes, uma para cada texto em payload.texts,
-    # no mesmo formato do /predict (reaproveite a logica acima).
-    raise NotImplementedError("Implemente o endpoint /predict/batch")
+    return [predict(TextInput(text=text)) for text in payload.texts]

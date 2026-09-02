@@ -71,6 +71,11 @@ python mlflow_tracking.py
 
 **Sua tarefa:** adicione um terceiro modelo à lista `MODELS_TO_COMPARE` (pode ser um dos sugeridos no Challenge 3 abaixo), rode novamente, e observe a tabela de comparação impressa ao final (via `mlflow.search_runs()`).
 
+**Implementação desta atividade:** foi adicionado o modelo multilíngue
+`nlptown/bert-base-multilingual-uncased-sentiment`. Seus rótulos de 1 a 5
+estrelas são normalizados para `NEGATIVE`, `NEUTRAL` e `POSITIVE` antes do
+cálculo da acurácia.
+
 **Concepts:** experiment tracking, params/metrics/artifacts, comparação de runs.
 
 ---
@@ -93,6 +98,9 @@ curl -X POST http://localhost:8000/predict -H "Content-Type: application/json" \
 ```
 
 **Sua tarefa:** implemente o endpoint `POST /predict/batch`, que recebe uma lista de textos e retorna uma predição para cada um (reaproveite a lógica de `/predict`).
+
+**Implementação desta atividade:** o endpoint aceita `{"texts": ["...", "..."]}`
+e devolve uma lista no mesmo formato de `/predict`, preservando a ordem dos textos.
 
 **Concepts:** deploy de modelo, API REST, request/response schema (Pydantic).
 
@@ -193,12 +201,12 @@ By completing this activity, students will learn:
 ## Checklist de entrega (rubrica)
 
 **Obrigatório**
-- [ ] App Gradio (`app.py`) rodando localmente sem erros
-- [ ] `mlflow_tracking.py` executado com pelo menos 3 runs registrados, incluindo 1 modelo adicional escolhido pelo aluno
-- [ ] Print ou export da tabela de comparação (`mlflow.search_runs()`)
-- [ ] `api/main.py` rodando localmente, `/predict` testado via curl ou Swagger UI
-- [ ] Endpoint `/predict/batch` implementado
-- [ ] Organização do repositório e clareza do código
+- [x] App Gradio (`app.py`) rodando localmente sem erros
+- [x] `mlflow_tracking.py` executado com pelo menos 3 runs registrados, incluindo 1 modelo adicional escolhido pelo aluno
+- [x] Print ou export da tabela de comparação (`mlflow.search_runs()`)
+- [x] `api/main.py` rodando localmente, `/predict` testado via curl ou Swagger UI
+- [x] Endpoint `/predict/batch` implementado
+- [x] Organização do repositório e clareza do código
 
 **Opcional / Bônus**
 - [ ] Challenge 1 e/ou 2 (customização visual, output com confidence score)

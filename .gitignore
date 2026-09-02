@@ -1,4 +1,10 @@
 .venv/
+.venv311/
 __pycache__/
+*.py[cod]
+.pytest_cache/
+.DS_Store
+mlruns/
 mlruns.db
 resultados.json
+mlflow_execution.log

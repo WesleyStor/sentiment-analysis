@@ -30,7 +30,7 @@ TEST_SENTENCES = [
 MODELS_TO_COMPARE = [
     None,  # None = modelo default do pipeline (distilbert-sst2-english)
     "cardiffnlp/twitter-xlm-roberta-base-sentiment",
-    # TODO (aluno): adicione um terceiro modelo aqui
+    "nlptown/bert-base-multilingual-uncased-sentiment",
 ]
 
 
@@ -43,6 +43,12 @@ def normalize_label(label: str) -> str:
         return "POSITIVE"
     if "NEG" in label:
         return "NEGATIVE"
+    if label.startswith(("4 ", "5 ")):
+        return "POSITIVE"
+    if label.startswith(("1 ", "2 ")):
+        return "NEGATIVE"
+    if label.startswith("3 "):
+        return "NEUTRAL"
     return label
 
 
